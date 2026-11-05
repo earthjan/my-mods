@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300">
+  <rect width="760" height="300" rx="14" fill="#1f1f1e"/>
+  <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+    <text x="28" y="40" font-size="16" font-weight="600" fill="#f1efe9">What each level means</text>
+    <g font-size="12" fill="#9a9893" letter-spacing=".4">
+      <text x="28" y="74">LEVEL</text>
+      <text x="120" y="74">THE NUMBER: WHERE THE WEEK IS HEADING</text>
+      <text x="480" y="74">THE w-% COLOUR: WEEK USED SO FAR</text>
+    </g>
+    <line x1="28" y1="86" x2="732" y2="86" stroke="#3a3a37"/>
+    <g font-size="14" fill="#e3e1dc">
+      <g transform="translate(0 112)">
+        <rect x="28" y="-15" width="40" height="22" rx="11" fill="#44cc11"/>
+        <text x="48" y="1" text-anchor="middle" fill="#fff" font-family="Verdana,sans-serif" font-size="12">1</text>
+        <text x="120" y="1">under 60% by the weekly reset</text><text x="480" y="1">under 50%</text>
+      </g>
+      <g transform="translate(0 150)">
+        <rect x="28" y="-15" width="40" height="22" rx="11" fill="#97ca00"/>
+        <text x="48" y="1" text-anchor="middle" fill="#fff" font-family="Verdana,sans-serif" font-size="12">2</text>
+        <text x="120" y="1">60 to 85% by the reset</text><text x="480" y="1">50 to 69%</text>
+      </g>
+      <g transform="translate(0 188)">
+        <rect x="28" y="-15" width="40" height="22" rx="11" fill="#dfb317"/>
+        <text x="48" y="1" text-anchor="middle" fill="#fff" font-family="Verdana,sans-serif" font-size="12">3</text>
+        <text x="120" y="1">85% or more by the reset</text><text x="480" y="1">70 to 84%</text>
+      </g>
+      <g transform="translate(0 226)">
+        <rect x="28" y="-15" width="40" height="22" rx="11" fill="#fe7d37"/>
+        <text x="48" y="1" text-anchor="middle" fill="#fff" font-family="Verdana,sans-serif" font-size="12">4</text>
+        <text x="120" y="1">runs out before the reset</text><text x="480" y="1">85 to 94%</text>
+      </g>
+      <g transform="translate(0 264)">
+        <rect x="28" y="-15" width="40" height="22" rx="11" fill="#e05d44"/>
+        <text x="48" y="1" text-anchor="middle" fill="#fff" font-family="Verdana,sans-serif" font-size="12">5</text>
+        <text x="120" y="1">runs out within a day</text><text x="480" y="1">95% or more</text>
+      </g>
+    </g>
+  </g>
+</svg>

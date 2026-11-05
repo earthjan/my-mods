@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="360" viewBox="0 0 860 360">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#8a8984"/>
+    </marker>
+  </defs>
+  <rect width="860" height="360" rx="14" fill="#1f1f1e"/>
+  <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+    <text x="28" y="40" font-size="16" font-weight="600" fill="#f1efe9">What puts a card on the board</text>
+    <g font-size="12" fill="#9a9893" letter-spacing=".4">
+      <text x="28" y="72">WHEN CLAUDE...</text>
+      <text x="470" y="72">THE BOARD SHOWS</text>
+    </g>
+    <g font-size="13">
+      <g transform="translate(0 86)">
+        <rect x="28" width="370" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <text x="44" y="25" fill="#e3e1dc">writes or updates its task list</text>
+        <line x1="404" y1="20" x2="460" y2="20" stroke="#8a8984" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="466" width="366" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <rect x="466" width="4" height="40" rx="2" fill="#9f9f9f"/>
+        <text x="484" y="25" fill="#e3e1dc">steps in Queued, Doing and Done</text>
+      </g>
+      <g transform="translate(0 136)">
+        <rect x="28" width="370" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <text x="44" y="25" fill="#e3e1dc">runs a tool (Bash, Edit, Read...)</text>
+        <line x1="404" y1="20" x2="460" y2="20" stroke="#8a8984" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="466" width="366" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <rect x="466" width="4" height="40" rx="2" fill="#378add"/>
+        <text x="484" y="25" fill="#5ea6e6">tool name and running time on the step</text>
+      </g>
+      <g transform="translate(0 186)">
+        <rect x="28" width="370" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <text x="44" y="25" fill="#e3e1dc">starts a subagent</text>
+        <line x1="404" y1="20" x2="460" y2="20" stroke="#8a8984" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="466" width="366" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <rect x="466" width="4" height="40" rx="2" fill="#7f77dd"/>
+        <text x="484" y="25" fill="#a39ce8">purple card with its model and time</text>
+      </g>
+      <g transform="translate(0 236)">
+        <rect x="28" width="370" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <text x="44" y="25" fill="#e3e1dc">asks you to approve a tool</text>
+        <line x1="404" y1="20" x2="460" y2="20" stroke="#8a8984" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="466" width="366" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <rect x="466" width="4" height="40" rx="2" fill="#ef9f27"/>
+        <text x="484" y="25" fill="#f2b356">amber "waiting for your approval" card</text>
+      </g>
+      <g transform="translate(0 286)">
+        <rect x="28" width="370" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <text x="44" y="25" fill="#e3e1dc">hits a tool error during a step</text>
+        <line x1="404" y1="20" x2="460" y2="20" stroke="#8a8984" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="466" width="366" height="40" rx="8" fill="#292927" stroke="#3a3a37"/>
+        <rect x="466" width="4" height="40" rx="2" fill="#e24b4a"/>
+        <text x="484" y="25" fill="#ec6f6e">that step finishes red, with the error count</text>
+      </g>
+    </g>
+  </g>
+</svg>

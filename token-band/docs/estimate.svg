@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="200" viewBox="0 0 960 200">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#8a8984"/>
+    </marker>
+  </defs>
+  <rect width="960" height="200" rx="14" fill="#1f1f1e"/>
+  <g font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">
+    <text x="28" y="40" font-size="16" font-weight="600" fill="#f1efe9">How "this session" gets its level</text>
+    <g stroke-width="1.5">
+      <rect x="28" y="66" width="196" height="96" rx="10" fill="#1d2b3a" stroke="#378add"/>
+      <rect x="260" y="66" width="196" height="96" rx="10" fill="#26233a" stroke="#7f77dd"/>
+      <rect x="492" y="66" width="196" height="96" rx="10" fill="#3a2d1a" stroke="#ef9f27"/>
+      <rect x="724" y="66" width="208" height="96" rx="10" fill="#2b3a1a" stroke="#97ca00"/>
+    </g>
+    <g stroke="#8a8984" stroke-width="1.5" marker-end="url(#arrow)">
+      <line x1="226" y1="114" x2="256" y2="114"/>
+      <line x1="458" y1="114" x2="488" y2="114"/>
+      <line x1="690" y1="114" x2="720" y2="114"/>
+    </g>
+    <g text-anchor="middle">
+      <text x="126" y="102" font-size="14" font-weight="600" fill="#cfe3f7">Spend rate</text>
+      <text x="126" y="124" font-size="12" fill="#b4c4d4">this session's cost</text>
+      <text x="126" y="141" font-size="12" fill="#b4c4d4">over 10 minutes or more</text>
+      <text x="358" y="102" font-size="14" font-weight="600" fill="#ddd9f7">Share</text>
+      <text x="358" y="124" font-size="12" fill="#c0bcd8">its rate against every session</text>
+      <text x="358" y="141" font-size="12" fill="#c0bcd8">active in the last 30 minutes</text>
+      <text x="590" y="102" font-size="14" font-weight="600" fill="#f7e3c4">Its slice of the pace</text>
+      <text x="590" y="124" font-size="12" fill="#d8c4a8">share times how fast the</text>
+      <text x="590" y="141" font-size="12" fill="#d8c4a8">account's weekly % is rising</text>
+      <text x="828" y="102" font-size="14" font-weight="600" fill="#e3f2c4">Level 1 to 5</text>
+      <text x="828" y="124" font-size="12" fill="#c4d4a8">where that slice alone would</text>
+      <text x="828" y="141" font-size="12" fill="#c4d4a8">take the week by the reset</text>
+    </g>
+  </g>
+</svg>
