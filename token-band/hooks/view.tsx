@@ -1,6 +1,12 @@
 import type { EngineInterface } from 'claude-code'
 
-import { LABEL_COLOR, badgeAlt, badgeSvg } from './badge'
+import {
+  CAPTION_HEIGHT,
+  LABEL_COLOR,
+  badgeAlt,
+  badgeSvg,
+  captionSvg,
+} from './badge'
 import type { Badge } from './badge'
 
 type Table = ReturnType<EngineInterface['ui']['resolve']>
@@ -48,16 +54,28 @@ const pill = (input: BandInput, b: Badge) => {
   )
 }
 
+const caption = (table: Table, isSvg: boolean, why: string) => {
+  const Svg = 'Svg' in table ? table.Svg : undefined
+  if (!isSvg || Svg === undefined) {
+    return <table.Text dimColor>{why}</table.Text>
+  }
+  const { svg, width } = captionSvg(why)
+  return <Svg source={svg} alt={why} width={width} height={CAPTION_HEIGHT} />
+}
+
 export const drawBand = (input: BandInput) => {
   const { Box, Text } = input.table
   const note = input.why === undefined ? null : (
-    <Box key="note"><Text dimColor>{input.why}</Text></Box>
+    <Box key="note">{caption(input.table, input.isSvg, input.why)}</Box>
   )
   return (
-    <Box key="band" flexDirection="row" flexWrap="wrap"
-      alignItems="center" columnGap={1} rowGap={input.isSvg ? 1 : 0}>
-      {input.badges.map(b => pill(input, b))}
-      {input.tree}
+    <Box key="band" flexDirection="column">
+      <Box key="row" flexDirection="row" flexWrap="wrap"
+        alignItems="center" columnGap={1} rowGap={input.isSvg ? 1 : 0}>
+        {input.badges.map(b => pill(input, b))}
+        {input.tree === undefined ? null : <Box key="spacer" flexGrow={1} />}
+        {input.tree}
+      </Box>
       {note}
     </Box>
   )

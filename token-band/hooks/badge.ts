@@ -80,3 +80,18 @@ export const badgeSvg = (b: Badge) => {
     '</g></g></svg>'
   return { svg, width }
 }
+
+export const CAPTION_HEIGHT = 14
+const CAPTION_SIZE = 10
+const CAPTION_COLOR = '#9a9893'
+
+export const captionSvg = (text: string) => {
+  const width = Math.ceil(textWidth(text) * CAPTION_SIZE / 11)
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" ` +
+    `height="${CAPTION_HEIGHT}"><text x="0" y="10.5" ` +
+    `fill="${CAPTION_COLOR}" font-size="${CAPTION_SIZE}" ` +
+    'font-family="Verdana,DejaVu Sans,sans-serif">' +
+    `${escape(text)}</text></svg>`
+  return { svg, width }
+}

@@ -1,5 +1,6 @@
 import { expect, test } from 'claude-code/testing'
-import { bonsaiSvg } from '../hooks/drawing'
+import { bonsaiSvg, skyFor } from '../hooks/drawing'
+import type { Sky } from '../hooks/drawing'
 import { advance, stageFor, startClock, treeCells, treePixels } from '../hooks/bonsai'
 
 test('the tree grows a stage at 100, 500, 2,000 and 10,000 turns', () => {
@@ -82,20 +83,37 @@ const PINK = '#f4b6c8'
 const count = (text: string, part: string) => text.split(part).length - 1
 
 test('only the tree in bloom has flowers and falling petals', () => {
-  expect(count(bonsaiSvg(3, 1), PINK)).toBe(0)
-  expect(count(bonsaiSvg(4, 1), `<circle`)).toBeGreaterThan(
-    count(bonsaiSvg(3, 1), `<circle`),
+  expect(count(bonsaiSvg(3, 1, 'day'), PINK)).toBe(0)
+  expect(count(bonsaiSvg(4, 1, 'day'), `<circle`)).toBeGreaterThan(
+    count(bonsaiSvg(3, 1, 'day'), `<circle`),
   )
-  expect(count(bonsaiSvg(4, 1), `<ellipse cx`)).toBeGreaterThan(
-    count(bonsaiSvg(3, 1), `<ellipse cx`),
+  expect(count(bonsaiSvg(4, 1, 'day'), `<ellipse cx`)).toBeGreaterThan(
+    count(bonsaiSvg(3, 1, 'day'), `<ellipse cx`),
   )
-  expect(count(bonsaiSvg(4, 1), PINK)).toBeGreaterThan(0)
+  expect(count(bonsaiSvg(4, 1, 'day'), PINK)).toBeGreaterThan(0)
 })
 
 test('each finished turn draws a fresh picture that sparkles once', () => {
-  const before = bonsaiSvg(3, 2000)
-  const after = bonsaiSvg(3, 2001)
+  const before = bonsaiSvg(3, 2000, 'day')
+  const after = bonsaiSvg(3, 2001, 'day')
   expect(after).not.toBe(before)
   expect(count(after, '#f2c14e')).toBeGreaterThan(0)
   expect(after).toContain('repeatCount="1"')
+})
+
+test('the sky follows the local hour', () => {
+  const hours = [4, 5, 7, 8, 16, 17, 19, 20, 23]
+  expect(hours.map(skyFor)).toEqual([
+    'night', 'dawn', 'dawn', 'day', 'day', 'dusk', 'dusk', 'night', 'night',
+  ])
+})
+
+test('each time of day paints its own sky, stars only at night', () => {
+  const at = (sky: Sky) => bonsaiSvg(3, 1, sky)
+  expect(at('dawn')).toContain('#f6c8a8')
+  expect(at('day')).toContain('#7cb8e8')
+  expect(at('dusk')).toContain('#5a4a8a')
+  expect(at('night')).toContain('#0f1a33')
+  expect(count(at('night'), 'class="star"')).toBeGreaterThan(0)
+  expect(count(at('day'), 'class="star"')).toBe(0)
 })

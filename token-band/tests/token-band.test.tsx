@@ -133,7 +133,9 @@ const readSurface = async (
   surface: 'terminal' | 'desktop',
 ): Promise<Band> => {
   const ui = await $.ui.mount({ ...BAND, surface })
-  const cause = (await ui.find({ key: 'note' }))?.text
+  const note = await ui.find({ key: 'note' })
+  const caption = (note?.children[0] as Drawn | undefined)?.props.alt
+  const cause = surface === 'terminal' ? note?.text : caption as string
   const [mine, account] = await Promise.all(
     PILLS.map(key => readPill(ui, key, surface)),
   )
@@ -271,7 +273,7 @@ test('a big conversation is named as the cause', async ($, on) => {
   })
 })
 
-test('the two pills and the note share one row that wraps', async ($, on) => {
+test('the pills share a row that wraps, the note is a caption below', async ($, on) => {
   engine(on)
   await $.session.measure(measure(40, T0 + 26 * HOUR, 160000))
 
@@ -283,21 +285,29 @@ test('the two pills and the note share one row that wraps', async ($, on) => {
         props: { ...BAND.props, bodyColumns },
       })
       const band = await ui.find({ key: 'band' })
+      const row = await ui.find({ key: 'row' })
       const pills = await Promise.all(
         PILLS.map(key => ui.find({ key })),
       )
-      const boxes = await ui.findAll({ type: 'Box' })
       const note = await ui.find({ key: 'note' })
       await ui.unmount()
 
-      expect(band?.props.flexDirection).toBe('row')
-      expect(band?.props.flexWrap).toBe('wrap')
-      expect(band?.props.rowGap).toBe(surface === 'desktop' ? 1 : 0)
+      expect(band?.props.flexDirection).toBe('column')
+      expect(band?.children.map(c => (c as Drawn).props.key))
+        .toEqual(['row', 'note'])
+      expect(row?.props.flexDirection).toBe('row')
+      expect(row?.props.flexWrap).toBe('wrap')
+      expect(row?.props.rowGap).toBe(surface === 'desktop' ? 1 : 0)
       for (const pill of pills) {
         expect(pill?.props.flexShrink).toBe(0)
       }
-      expect(boxes.some(b => b.key?.startsWith('divider'))).toBe(false)
-      expect(note?.text).toBe('big conversation, 160k re-read each turn')
+      const why = 'big conversation, 160k re-read each turn'
+      const caption = note?.children[0] as Drawn
+      if (surface === 'terminal') expect(note?.text).toBe(why)
+      else {
+        expect(caption.props.alt).toBe(why)
+        expect(String(caption.props.source)).toContain('font-size="10"')
+      }
     }
   }
 })
@@ -508,8 +518,31 @@ test('on desktop the bonsai is a drawn picture of its stage', async ($, on) => {
 
   expect(svg?.props).toMatchObject({
     alt: 'bonsai, tree stage, 2000 turns',
-    width: 60,
+    width: 170,
     height: 50,
+    isInteractive: true,
   })
   expect(String(svg?.props.source)).toMatch(/^<svg /)
+})
+
+test('the bonsai sits at the right edge and leaves a narrow band', async ($, on) => {
+  engine(on, { 'bonsai:turns': 5 })
+  await $.session.measure(measure(40, T0 + 26 * HOUR))
+
+  for (const surface of ['terminal', 'desktop'] as const) {
+    const at = async (bodyColumns: number) => {
+      const ui = await $.ui.mount({
+        ...BAND,
+        surface,
+        props: { ...BAND.props, bodyColumns },
+      })
+      const row = await ui.find({ key: 'row' })
+      await ui.unmount()
+      return row?.children.map(c => (c as Drawn).props) ?? []
+    }
+    const wide = await at(200)
+    expect(wide.map(p => p.key)).toEqual(['mine', 'account', 'spacer', 'bonsai'])
+    expect(wide[2]?.flexGrow).toBe(1)
+    expect((await at(69)).map(p => p.key)).toEqual(['mine', 'account'])
+  }
 })

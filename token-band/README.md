@@ -14,7 +14,11 @@ A row of two pills above the Claude Code prompt that tells you, at a glance, how
 
 ![What each level means](docs/levels.svg)
 
-**The little bonsai after the pills grows with you.** It counts every finished turn on this machine, across all sessions, and grows from a sprout to a seedling at 100 turns, a sapling at 500, a full tree at 2,000, and comes into bloom at 10,000. In the desktop app it is a drawn picture whose foliage pads sway, whose petals drift down once it blooms, and which sparkles once when a turn finishes. In the terminal it is a small two-row tree made of coloured blocks. VS Code and mobile leave it out.
+**The little bonsai at the right edge of the band grows with you.** It counts every finished turn on this machine, across all sessions, and grows from a sprout to a seedling at 100 turns, a sapling at 500, a full tree at 2,000, and comes into bloom at 10,000. In the desktop app it is a drawn scene: the tree sits under a sky that follows your local clock (dawn from 5:00, day from 8:00, dusk from 17:00, night from 20:00, with a moon and twinkling stars), clouds drift past, the foliage pads sway, petals blow across the sky once it blooms, and it sparkles once when a turn finishes. In the terminal it is a small two-row tree made of coloured blocks. When the band is narrower than 70 columns the bonsai is left out so the pills keep their room. VS Code and mobile leave it out.
+
+![How the bonsai grows, how the sky changes, and how turns are counted](docs/bonsai-lifecycle.svg)
+
+The note that names what drove the spend (for example a big conversation) sits on its own line under the pills, in a small caption size on desktop.
 
 ## How the session level is worked out
 

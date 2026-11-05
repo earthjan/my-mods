@@ -12,7 +12,8 @@ import { LEVEL_COLORS, MISSING_COLOR, SESSION_COLOR } from './badge'
 import type { Badge, Segment } from './badge'
 import { stageFor } from './bonsai'
 import { cause } from './cause'
-import { STAGE_NAMES, bonsaiSvg } from './drawing'
+import { STAGE_NAMES, bonsaiSvg, skyFor } from './drawing'
+import type { Sky } from './drawing'
 import { compact } from './format'
 import {
   PEER_PREFIX,
@@ -151,23 +152,27 @@ const readTurns = async ($: EngineInterface): Promise<number> => {
 
 type Table = ReturnType<EngineInterface['ui']['resolve']>
 
-const TREE_WIDTH = 60
+const TREE_MIN_COLUMNS = 70
+const TREE_WIDTH = 170
 const TREE_HEIGHT = 50
 
-const drawnTree = (table: Table, turns: number) => {
+type Scene = { turns: number; sky: Sky }
+
+const drawnTree = (table: Table, { turns, sky }: Scene) => {
   if (!('Svg' in table)) return undefined
   const stage = stageFor(turns)
   const alt = `bonsai, ${STAGE_NAMES[stage]} stage, ${turns} turns`
   return (
     <table.Box key="bonsai">
-      <table.Svg source={bonsaiSvg(stage, turns)} alt={alt}
-        width={TREE_WIDTH} height={TREE_HEIGHT} />
+      <table.Svg source={bonsaiSvg(stage, turns, sky)} alt={alt}
+        width={TREE_WIDTH} height={TREE_HEIGHT} isInteractive />
     </table.Box>
   )
 }
 
-const drawTree = (table: Table, isSvg: boolean, turns: number) => {
-  if (isSvg) return drawnTree(table, turns)
+const drawTree = (table: Table, isSvg: boolean, scene: Scene) => {
+  const { turns } = scene
+  if (isSvg) return drawnTree(table, scene)
   if (!('Client' in table)) return undefined
   return <table.Client key="bonsai" module="./tree.tsx" props={{ turns }} />
 }
@@ -283,7 +288,11 @@ export const register: Register = on => {
     const table = $.ui.resolve(e)
     const isSvg = e.surface !== 'terminal' && 'Svg' in table
     const turns = await readTurns($)
-    const tree = turns > 0 ? drawTree(table, isSvg, turns) : undefined
+    const hasRoom = e.props.bodyColumns >= TREE_MIN_COLUMNS
+    const sky = skyFor(new Date(await $.clock.now()).getHours())
+    const tree = turns > 0 && hasRoom
+      ? drawTree(table, isSvg, { turns, sky })
+      : undefined
     return drawBand({ table, isSvg, badges, why, tree })
   })
 }

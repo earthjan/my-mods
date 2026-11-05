@@ -53,20 +53,27 @@ const pad = (p: Pad): string => {
   return `<g>${sway(p)}${leaves.join('')}${blooms}</g>`
 }
 
-const PETALS: [number, number, number][] = [
-  [30, 58, 0], [88, 44, 1.6], [66, 30, 3.1],
-]
+const WIDTH = 340
+const TREE_X = WIDTH - 120
+const PETAL_COUNT = 9
 
-const drift = (attribute: string, values: string, begin: number) =>
-  `<animate attributeName="${attribute}" values="${values}" dur="4.5s" ` +
-  `begin="${begin}s" repeatCount="indefinite"/>`
+const drift = (attribute: string, values: string, timing: string) =>
+  `<animate attributeName="${attribute}" values="${values}" ${timing} ` +
+  'repeatCount="indefinite"/>'
 
-const petal = ([x, y, begin]: [number, number, number]): string =>
-  `<ellipse cx="${x}" cy="${y}" rx="1.6" ry="1" fill="${PINK}" opacity="0">` +
-  drift('cy', `${y};${y + 34}`, begin) +
-  drift('cx', `${x};${x + 6};${x + 2};${x + 9}`, begin) +
-  drift('opacity', '0;1;1;0', begin) +
-  '</ellipse>'
+const petal = (i: number): string => {
+  const y = 20 + (i * 13) % 40
+  const timing = `dur="${5 + i % 3}s" begin="${(i * 0.9).toFixed(1)}s"`
+  const from = TREE_X + 60
+  return `<ellipse cx="${from}" cy="${y}" rx="2" ry="1.2" ` +
+    `fill="${PINK}" opacity="0">` +
+    drift('cx', `${from};${from - WIDTH * 0.9}`, timing) +
+    drift('cy', `${y};${y + 18};${y + 8};${y + 30}`, timing) +
+    drift('opacity', '0;1;1;0', timing) +
+    '</ellipse>'
+}
+
+const PETALS = Array.from({ length: PETAL_COUNT }, (_, i) => petal(i)).join('')
 
 const POT =
   '<rect x="32" y="94" width="8" height="3" rx="1" fill="#2c4250"/>' +
@@ -123,7 +130,7 @@ const BLOOM = 4
 
 const grown = (isBlooming: boolean): string => {
   const pads = GROWN_PADS.map(p => pad({ ...p, isBlooming })).join('')
-  return TRUNK + pads + (isBlooming ? PETALS.map(petal).join('') : '')
+  return TRUNK + pads
 }
 
 const plant = (stage: number): string =>
@@ -136,6 +143,75 @@ const SPARKLE =
   'fill="#f2c14e"/>' + circle(94, 14, 1.4, '#f2c14e') +
   circle(74, 14, 1, '#f2c14e') + '</g>'
 
-export const bonsaiSvg = (stage: number, turns: number): string =>
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" ' +
-  `data-turns="${turns}">${POT}${plant(stage)}${SPARKLE}</svg>`
+export type Sky = 'dawn' | 'day' | 'dusk' | 'night'
+
+const SKY_STARTS: [number, Sky][] = [[20, 'night'], [17, 'dusk'], [8, 'day'], [5, 'dawn']]
+
+export const skyFor = (hour: number): Sky =>
+  SKY_STARTS.find(([start]) => hour >= start)?.[1] ?? 'night'
+
+type SkyPaint = {
+  top: string
+  bottom: string
+  light: string
+  lightY: number
+  cloud: string
+}
+
+const SKIES: Record<Sky, SkyPaint> = {
+  dawn: { top: '#f6c8a8', bottom: '#f3e2c4', light: '#ffd27a',
+    lightY: 70, cloud: '#fff4ea' },
+  day: { top: '#7cb8e8', bottom: '#cfe8f7', light: '#fff3b0',
+    lightY: 24, cloud: '#ffffff' },
+  dusk: { top: '#5a4a8a', bottom: '#f19a7a', light: '#ffb36b',
+    lightY: 66, cloud: '#f6c1b0' },
+  night: { top: '#0f1a33', bottom: '#2a3a62', light: '#f2ecd0',
+    lightY: 24, cloud: '#3c4c78' },
+}
+
+const STAR_COUNT = 14
+
+const star = (i: number): string =>
+  `<circle class="star" cx="${(i * 53) % 300 + 10}" ` +
+  `cy="${(i * 29) % 50 + 8}" r="${i % 3 ? 0.9 : 1.4}" fill="#fff">` +
+  '<animate attributeName="opacity" values="1;.3;1" ' +
+  `dur="${2 + i % 3}s" repeatCount="indefinite"/></circle>`
+
+const STARS = Array.from({ length: STAR_COUNT }, (_, i) => star(i)).join('')
+
+const light = (sky: Sky, paint: SkyPaint): string => {
+  const sun = circle(60, paint.lightY, 11, paint.light)
+  if (sky !== 'night') return sun
+  return circle(60, paint.lightY, 10, paint.light) +
+    circle(65, paint.lightY - 3, 9, paint.top)
+}
+
+const cloud = (x: number, y: number, seconds: number, fill: string) =>
+  `<g fill="${fill}" opacity=".85">` +
+  '<animateTransform attributeName="transform" type="translate" ' +
+  `values="0 0;${-WIDTH} 0" dur="${seconds}s" repeatCount="indefinite"/>` +
+  `<ellipse cx="${x}" cy="${y}" rx="16" ry="6"/>` +
+  `<ellipse cx="${x + 10}" cy="${y - 4}" rx="10" ry="6"/>` +
+  `<ellipse cx="${x - 8}" cy="${y - 2}" rx="8" ry="5"/></g>`
+
+const backdrop = (sky: Sky): string => {
+  const paint = SKIES[sky]
+  return '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
+    `<stop offset="0" stop-color="${paint.top}"/>` +
+    `<stop offset="1" stop-color="${paint.bottom}"/></linearGradient>` +
+    `<clipPath id="panel"><rect width="${WIDTH}" height="100" rx="14"/>` +
+    '</clipPath></defs>' +
+    `<rect width="${WIDTH}" height="100" fill="url(#sky)"/>` +
+    (sky === 'night' ? STARS : '') + light(sky, paint) +
+    cloud(150, 26, 40, paint.cloud) + cloud(330, 44, 55, paint.cloud) +
+    `<rect y="88" width="${WIDTH}" height="12" fill="#3d5a2c" ` +
+    'opacity=".55"/>'
+}
+
+export const bonsaiSvg = (stage: number, turns: number, sky: Sky) =>
+  '<svg xmlns="http://www.w3.org/2000/svg" ' +
+  `viewBox="0 0 ${WIDTH} 100" data-turns="${turns}">` +
+  `<g clip-path="url(#panel)">${backdrop(sky)}` +
+  `<g transform="translate(${TREE_X} 0)">${POT}${plant(stage)}` +
+  `${SPARKLE}</g>${stage >= BLOOM ? PETALS : ''}</g></svg>`
+
