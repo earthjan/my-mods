@@ -10,6 +10,7 @@ export const MISSING_COLOR = '#9f9f9f'
 const HEIGHT = 20
 const RADIUS = HEIGHT / 2
 const PAD = 16
+const END_PAD = 4
 const DEFAULT_WIDTH = 6.6
 
 const VERDANA_11: Record<string, number> = {
@@ -34,31 +35,44 @@ const escape = (s: string): string =>
 const segmentWidth = (text: string): number =>
   Math.round(textWidth(text) + PAD)
 
-const segment = (x: number, width: number, text: string, fill: string) =>
-  `<rect x="${x}" width="${width}" height="${HEIGHT}" fill="${fill}"/>` +
-  `<text x="${x + width / 2}" y="14">${escape(text)}</text>`
+type Drawn = { x: number; width: number; centre: number }
+
+const segment = (at: Drawn, text: string, fill: string) =>
+  `<rect x="${at.x}" width="${at.width}" height="${HEIGHT}" ` +
+  `fill="${fill}"/>` +
+  `<text x="${at.centre}" y="14">${escape(text)}</text>`
 
 const SEPARATOR =
   `<rect width="1" height="${HEIGHT}" fill="#ffffff" fill-opacity="0.35"/>`
 
+const valuePlace = (x: number, text: string, isLast: boolean) => {
+  const width = segmentWidth(text)
+  const extra = isLast ? END_PAD : 0
+  return { x, width: width + extra, centre: x + width / 2 }
+}
+
 const values = (segments: Segment[], start: number) => {
   let x = start
   const parts = segments.map((s, i) => {
-    const width = segmentWidth(s.value)
+    const at = valuePlace(x, s.value, i === segments.length - 1)
     const line = i === 0 ? '' : `<g transform="translate(${x})">${SEPARATOR}</g>`
-    const drawn = segment(x, width, s.value, s.color) + line
-    x += width
-    return drawn
+    x += at.width
+    return segment(at, s.value, s.color) + line
   })
   return { svg: parts.join(''), end: x }
+}
+
+const labelPlace = (text: string): Drawn => {
+  const width = segmentWidth(text)
+  return { x: 0, width: width + END_PAD, centre: END_PAD + width / 2 }
 }
 
 export const badgeAlt = (b: Badge): string =>
   [b.label, ...b.segments.map(s => s.value)].join(' ')
 
 export const badgeSvg = (b: Badge) => {
-  const left = segmentWidth(b.label)
-  const right = values(b.segments, left)
+  const left = labelPlace(b.label)
+  const right = values(b.segments, left.width)
   const width = right.end
   const clip = `c-${b.key}`
   const svg =
@@ -66,7 +80,7 @@ export const badgeSvg = (b: Badge) => {
     `<clipPath id="${clip}"><rect width="${width}" height="${HEIGHT}" rx="${RADIUS}"/></clipPath>` +
     '<g fill="#fff" text-anchor="middle" font-family="Verdana,DejaVu Sans,sans-serif" font-size="11">' +
     `<g clip-path="url(#${clip})">` +
-    segment(0, left, b.label, LABEL_COLOR) + right.svg +
+    segment(left, b.label, LABEL_COLOR) + right.svg +
     '</g></g></svg>'
   return { svg, width }
 }

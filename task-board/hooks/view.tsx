@@ -22,10 +22,11 @@ const LANES: Lane[] = [
 ]
 
 const drawCard = ({ Box, Text }: Table, lane: string, c: Card) => (
-  <Box key={`card:${lane}:${c.key}`} flexDirection="row" gap={1}>
-    <Text color={TONE_COLORS[c.tone]}>▎</Text>
-    <Box flexDirection="column" flexShrink={1}>
-      <Text dimColor={c.tone === 'done'}>{c.title}</Text>
+  <Box key={`card:${lane}:${c.key}`} flexDirection="row"
+    borderStyle="round" borderDimColor overflow="hidden">
+    <Box width={1} backgroundColor={TONE_COLORS[c.tone]} />
+    <Box flexDirection="column" flexGrow={1} flexShrink={1} paddingX={1}>
+      <Text dimColor={lane === 'done'}>{c.title}</Text>
       {c.status === undefined ? null : (
         <Text color={TONE_COLORS[c.tone]}>{c.status}</Text>
       )}
@@ -33,10 +34,12 @@ const drawCard = ({ Box, Text }: Table, lane: string, c: Card) => (
   </Box>
 )
 
+const LANE_NAMES = { doing: 'Doing', queued: 'Queued', done: 'Done' }
+
 const header = ({ Box, Text }: Table, lane: Lane, count: number) => (
   <Box key={`head:${lane.name}`} flexDirection="row" gap={1}>
     <Text color={TONE_COLORS[lane.tone]}>●</Text>
-    <Text dimColor>{`${lane.name} ${count}`}</Text>
+    <Text bold>{`${LANE_NAMES[lane.name]} ${count}`}</Text>
   </Box>
 )
 
@@ -45,7 +48,7 @@ const drawLane = (table: Table, lanes: Lanes, lane: Lane, isWide: boolean) => {
   const cards = lanes[lane.name]
   const more = lane.name === 'done' && lanes.hiddenDone > 0
   return (
-    <Box key={`lane:${lane.name}`} flexDirection="column"
+    <Box key={`lane:${lane.name}`} flexDirection="column" gap={1}
       {...(isWide ? { flexGrow: 1, flexShrink: 1, width: 0 } : {})}>
       {header(table, lane, cards.length + (more ? lanes.hiddenDone : 0))}
       {cards.map(c => drawCard(table, lane.name, c))}

@@ -1,6 +1,6 @@
 {
   "name": "task-board",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A side pane board of what Claude is doing, what is queued and what is done",
   "types": "./types/index.d.ts"
 }

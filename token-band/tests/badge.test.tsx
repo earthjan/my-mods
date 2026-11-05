@@ -5,6 +5,9 @@ const segmentEdges = (svg: string) =>
   [...svg.matchAll(/<rect x="(\d+)" width="(\d+)"/g)]
     .map(m => [Number(m[1]), Number(m[2])])
 
+const textCentres = (svg: string) =>
+  [...svg.matchAll(/<text x="([\d.]+)"/g)].map(m => Number(m[1]))
+
 test('segments fit the Verdana width of their own text', () => {
   const { svg, width } = badgeSvg({
     key: 'k',
@@ -12,8 +15,18 @@ test('segments fit the Verdana width of their own text', () => {
     segments: [{ value: 'w-34%', color: '#44cc11' }],
   })
 
-  expect(segmentEdges(svg)).toEqual([[0, 80], [80, 56]])
-  expect(width).toBe(136)
+  expect(segmentEdges(svg)).toEqual([[0, 84], [84, 60]])
+  expect(width).toBe(144)
+})
+
+test('text centres on the flat part, clear of the rounded ends', () => {
+  const { svg } = badgeSvg({
+    key: 'k',
+    label: 'this session',
+    segments: [{ value: 'w-34%', color: '#44cc11' }],
+  })
+
+  expect(textCentres(svg)).toEqual([44, 112])
 })
 
 test('the divider between values is drawn on top of them', () => {
@@ -26,7 +39,7 @@ test('the divider between values is drawn on top of them', () => {
     ],
   })
 
-  const second = svg.indexOf('<rect x="46"')
+  const second = svg.indexOf('<rect x="50"')
   const divider = svg.indexOf('fill-opacity="0.35"')
   expect(second).toBeGreaterThan(-1)
   expect(divider).toBeGreaterThan(second)

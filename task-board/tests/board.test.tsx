@@ -73,7 +73,8 @@ const textOf = (part: unknown): string => {
 const cardOf = (box: { children: unknown[] }) => {
   const [bar, body] = box.children as Drawn[]
   const lines = ((body?.children ?? []) as Drawn[]).map(textOf)
-  const tone = TONES[String(bar?.props.color).toLowerCase()] ?? '?'
+  const fill = String(bar?.props.backgroundColor).toLowerCase()
+  const tone = TONES[fill] ?? '?'
   return [tone, ...lines].join(' | ')
 }
 
@@ -94,6 +95,8 @@ const readSurface = async (
   return {
     layout: boxes.find(b => b.key === 'columns') ? 'columns' : 'stack',
     order: boxes.filter(b => b.key?.startsWith('lane:')).map(b => b.key?.slice(5)),
+    heads: boxes.filter(b => b.key?.startsWith('head:'))
+      .map(b => b.text.replace('●', '').trim()),
     doing: lane('doing'),
     queued: lane('queued'),
     done: lane('done'),
@@ -115,11 +118,37 @@ test('a plan is sorted into its three lanes', async ($, on) => {
   expect(await readBoard($)).toEqual({
     layout: 'stack',
     order: ['doing', 'queued', 'done'],
+    heads: ['Doing 1', 'Queued 1', 'Done 1'],
     doing: ['doing | Make it pass'],
     queued: ['queued | Reinstall'],
     done: ['done | Write the test'],
     footer: '1 of 3 steps · 0s',
   })
+})
+
+test('each card is a rounded panel with a colour bar', async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const boxes = await ui.findAll({ type: 'Box' })
+  await ui.unmount()
+  const card = boxes.find(b => b.key === 'card:doing:2')
+  const [bar] = (card?.children ?? []) as Drawn[]
+  expect(card?.props.borderStyle).toBe('round')
+  expect(bar?.props.backgroundColor).toBe('#378add')
+  expect(bar?.children ?? []).toEqual([])
+})
+
+test('lane headers name the lane in a heavier weight', async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const texts = await ui.findAll({ type: 'Text' })
+  await ui.unmount()
+  const name = texts.find(t => t.text === 'Doing 1')
+  expect(name?.props.bold).toBe(true)
 })
 
 test('advancing finishes the current step and starts the next', async ($, on) => {
