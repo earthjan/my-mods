@@ -1,6 +1,6 @@
 {
   "name": "token-band",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "A badge row above the prompt rating how hard the session is using the weekly limit, level 1 to 5, with the main cause",
   "types": "./types/index.d.ts"
 }

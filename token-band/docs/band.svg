@@ -14,7 +14,7 @@
     <g transform="translate(176)">
       <g clip-path="url(#acct)">
         <rect width="93" height="20" fill="#555"/><text x="48.5" y="14">account-wide</text>
-        <rect x="93" width="76" height="20" fill="#fe7d37"/><text x="131" y="14">4 (1d 18h)</text>
+        <rect x="93" width="76" height="20" fill="#fe7d37"/><text x="131" y="14">4 · 1d 18h</text>
         <rect x="169" width="60" height="20" fill="#44cc11"/><text x="197" y="14">w-34%</text>
       </g>
     </g>

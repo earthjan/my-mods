@@ -183,7 +183,7 @@ test('a pace that runs out before reset is level 4', async ($, on) => {
   await $.session.measure(measure(44, T0 + 74 * HOUR))
 
   expect(await readBand($)).toEqual({
-    badges: 'this session no estimate 0 · account-wide 4 (1d 4h) w-44%',
+    badges: 'this session no estimate 0 · account-wide 4 · 1d 4h w-44%',
     mineColor: '#9f9f9f',
     cause: 'weekly % rising fast, check other sessions',
     levelColor: '#fe7d37',
@@ -198,7 +198,7 @@ test('a pace that runs out within a day is level 5', async ($, on) => {
   await $.session.measure(measure(70, T0 + 74 * HOUR))
 
   const band = await readBand($)
-  expect(band.badges).toMatch(/account-wide 5 \(6h\) w-/)
+  expect(band.badges).toMatch(/account-wide 5 · 6h w-/)
   expect(band.levelColor).toBe('#e05d44')
 })
 
@@ -208,7 +208,7 @@ test('under an hour left reads as less than an hour', async ($, on) => {
   await clock.advance(2 * HOUR)
   await $.session.measure(measure(99, T0 + 74 * HOUR))
 
-  expect((await readBand($)).badges).toMatch(/account-wide 5 \(<1h\) w-/)
+  expect((await readBand($)).badges).toMatch(/account-wide 5 · <1h w-/)
 })
 
 test('a slow pace is level 1 with nothing to blame', async ($, on) => {
@@ -309,7 +309,7 @@ test('alone on the machine, the session carries the whole pace', async ($, on) =
   await $.session.measure(measure(44, T0 + 74 * HOUR, 40000, 2))
 
   const band = await readBand($)
-  expect(band.badges).toMatch(/^this session 4 \(1d 4h\) 0 · /)
+  expect(band.badges).toMatch(/^this session 4 · 1d 4h 0 · /)
   expect(band.mineColor).toBe('#fe7d37')
 })
 
@@ -322,7 +322,7 @@ test('a busier session elsewhere takes its share of the pace', async ($, on) => 
 
   const band = await readBand($)
   expect(band.badges).toBe(
-    'this session 2 0 · account-wide 4 (1d 4h) w-44%',
+    'this session 2 0 · account-wide 4 · 1d 4h w-44%',
   )
   expect(band.mineColor).toBe('#97ca00')
 })
@@ -334,7 +334,7 @@ test('a session idle for over half an hour is left out', async ($, on) => {
   await clock.advance(2 * HOUR)
   await $.session.measure(measure(44, T0 + 74 * HOUR, 40000, 2))
 
-  expect((await readBand($)).badges).toMatch(/^this session 4 \(1d 4h\) 0 · /)
+  expect((await readBand($)).badges).toMatch(/^this session 4 · 1d 4h 0 · /)
 })
 
 test('the session publishes its spend rate for the others', async ($, on) => {

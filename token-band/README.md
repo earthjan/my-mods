@@ -8,7 +8,7 @@ A row of two pills above the Claude Code prompt that tells you, at a glance, how
 
 **The left pill is this session.** Its number is a level from 1 (relaxed) to 5 (you will hit the limit within a day) for this session's own share of your usage, and the grey segment is how many tokens the session has used, subagents included.
 
-**The right pill is your whole account.** Its number is the same 1 to 5 scale for every session together, with the time left before you hit the weekly limit in brackets when the current pace would get there. The last segment, `w-34%`, is how much of this week's limit is already used, coloured by how close that is to full.
+**The right pill is your whole account.** Its number is the same 1 to 5 scale for every session together, followed by the time left before you hit the weekly limit (`4 · 1d 18h`) when the current pace would get there. The last segment, `w-34%`, is how much of this week's limit is already used, coloured by how close that is to full.
 
 **The grey note names the main cause**, when there is one: a cache miss that re-wrote a big prompt, a conversation so large it is re-read every turn, several subagents in one turn, the Fable model, very long output, or the weekly % rising fast because of other sessions.
 

@@ -121,7 +121,7 @@ const missing = (value: string): Segment => ({
 })
 
 const levelSegment = (lvl: number, left?: string): Segment => ({
-  value: left === undefined ? String(lvl) : `${lvl} (${left})`,
+  value: left === undefined ? String(lvl) : `${lvl} · ${left}`,
   color: LEVEL_COLORS[lvl - 1] ?? MISSING_COLOR,
 })
 
