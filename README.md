@@ -7,8 +7,6 @@ Personal Claude Code mods, published as a plugin marketplace so every machine in
 | [token-band](token-band/README.md) | Two pills above the prompt showing how hard this session and the whole account are using the weekly limit, with token counts for each |
 | [task-board](task-board/README.md) | A desktop side pane board of what Claude is doing, what is queued and what is done |
 
-![token-band](token-band/docs/band.svg)
-
 ## Install on a machine
 
 The repo is private, so the machine needs git access to it. With the personal SSH key under the `github-personal` host alias:
