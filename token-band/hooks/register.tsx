@@ -20,6 +20,7 @@ import {
   spendRate,
 } from './mine'
 import { drawBand } from './view'
+import { WINDOW_PREFIX, addToWindow, isCurrent, windowTotal } from './window'
 import {
   level,
   levelFromPace,
@@ -96,12 +97,31 @@ const recordCost = async ($: EngineInterface, cost?: SessionCost) => {
   if (rate !== undefined) await publish($, rate, now)
 }
 
+const windowKeys = async ($: EngineInterface) =>
+  (await $.store.keys()).filter(k => k.startsWith(WINDOW_PREFIX))
+
+const addWindowTokens = async ($: EngineInterface, count: number) => {
+  const resetsAt = (await read($, weekly))?.resetsAt
+  if (resetsAt === undefined) return
+  const key = WINDOW_PREFIX + (await $.session.id())
+  await $.store.set(key, addToWindow(await $.store.get(key), resetsAt, count))
+  for (const k of await windowKeys($)) {
+    if (!isCurrent(await $.store.get(k), resetsAt)) await $.store.delete(k)
+  }
+}
+
+const readWindowTotal = async ($: EngineInterface, resetsAt: number) => {
+  const keys = await windowKeys($)
+  return windowTotal(await Promise.all(keys.map(k => $.store.get(k))), resetsAt)
+}
+
 const recordTurn = async (
   $: EngineInterface,
   e: TurnCompleteInput,
   usage: TurnUsage,
 ) => {
   await update($, tokens, sum => sum + turnTokens(usage))
+  await addWindowTokens($, turnTokens(usage))
   const sofar = await read($, pending)
   const output = sofar.output + usage.output_tokens
   if (e.agentId !== undefined) {
@@ -126,20 +146,23 @@ const levelSegment = (lvl: number, left?: string): Segment => ({
 })
 
 const weeklySegment = (week: Weekly): Segment => ({
-  value: `${week.last.percent}%`,
+  value: `w-${week.last.percent}%`,
   color: LEVEL_COLORS[levelFromUsed(week.last.percent) - 1] ?? MISSING_COLOR,
 })
 
-const accountSegments = (week: Weekly | null, now: number): Segment[] => {
+const totalSegments = (total?: number): Segment[] =>
+  total === undefined ? [] : [{ value: compact(total), color: SESSION_COLOR }]
+
+const accountSegments = (
+  week: Weekly | null,
+  now: number,
+  total?: number,
+): Segment[] => {
   if (week === null) return [missing('no reading')]
   const left = timeLeft(project(week, now))
-  return [levelSegment(level(week, now), left)]
+  const lvl = levelSegment(level(week, now), left)
+  return [lvl, ...totalSegments(total), weeklySegment(week)]
 }
-
-const weeklyBadges = (week: Weekly | null): Badge[] =>
-  week === null
-    ? []
-    : [{ key: 'weekly', label: 'weekly', segments: [weeklySegment(week)] }]
 
 const mineSegment = async (
   $: EngineInterface,
@@ -172,14 +195,17 @@ const describe = async ($: EngineInterface) => {
     isRunningOut,
   })
   const mine = [await mineSegment($, week, now), await tokensSegment($)]
+  const resetsAt = week?.resetsAt
+  const total = resetsAt === undefined
+    ? undefined
+    : await readWindowTotal($, resetsAt)
   const badges: Badge[] = [
-    { key: 'mine', label: 'this session', segments: mine },
+    { key: 'mine', label: 'session', segments: mine },
     {
       key: 'account',
-      label: 'account-wide',
-      segments: accountSegments(week, now),
+      label: 'account',
+      segments: accountSegments(week, now, total),
     },
-    ...weeklyBadges(week),
   ]
   return { badges, why }
 }

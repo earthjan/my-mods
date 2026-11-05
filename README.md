@@ -4,7 +4,7 @@ Personal Claude Code mods, published as a plugin marketplace so every machine in
 
 | Mod | What it adds |
 |---|---|
-| [token-band](token-band/README.md) | Two pills above the prompt showing how hard this session and the whole account are using the weekly limit |
+| [token-band](token-band/README.md) | Two pills above the prompt showing how hard this session and the whole account are using the weekly limit, with token counts for each |
 | [task-board](task-board/README.md) | A desktop side pane board of what Claude is doing, what is queued and what is done |
 
 ![token-band](token-band/docs/band.svg)
