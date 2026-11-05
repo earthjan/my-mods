@@ -10,7 +10,9 @@ import type {
 
 import { LEVEL_COLORS, MISSING_COLOR, SESSION_COLOR } from './badge'
 import type { Badge, Segment } from './badge'
+import { stageFor } from './bonsai'
 import { cause } from './cause'
+import { STAGE_NAMES, bonsaiSvg } from './drawing'
 import { compact } from './format'
 import {
   PEER_PREFIX,
@@ -147,6 +149,29 @@ const readTurns = async ($: EngineInterface): Promise<number> => {
   return typeof turns === 'number' ? turns : 0
 }
 
+type Table = ReturnType<EngineInterface['ui']['resolve']>
+
+const TREE_WIDTH = 60
+const TREE_HEIGHT = 50
+
+const drawnTree = (table: Table, turns: number) => {
+  if (!('Svg' in table)) return undefined
+  const stage = stageFor(turns)
+  const alt = `bonsai, ${STAGE_NAMES[stage]} stage, ${turns} turns`
+  return (
+    <table.Box key="bonsai">
+      <table.Svg source={bonsaiSvg(stage, turns)} alt={alt}
+        width={TREE_WIDTH} height={TREE_HEIGHT} />
+    </table.Box>
+  )
+}
+
+const drawTree = (table: Table, isSvg: boolean, turns: number) => {
+  if (isSvg) return drawnTree(table, turns)
+  if (!('Client' in table)) return undefined
+  return <table.Client key="bonsai" module="./tree.tsx" props={{ turns }} />
+}
+
 const missing = (value: string): Segment => ({
   value,
   color: MISSING_COLOR,
@@ -258,9 +283,7 @@ export const register: Register = on => {
     const table = $.ui.resolve(e)
     const isSvg = e.surface !== 'terminal' && 'Svg' in table
     const turns = await readTurns($)
-    const tree = 'Client' in table && turns > 0
-      ? <table.Client key="bonsai" module="./tree.tsx" props={{ turns }} />
-      : undefined
+    const tree = turns > 0 ? drawTree(table, isSvg, turns) : undefined
     return drawBand({ table, isSvg, badges, why, tree })
   })
 }

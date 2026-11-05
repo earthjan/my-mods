@@ -491,10 +491,25 @@ test('the bonsai counts finished turns from every session', async ($, on) => {
   })
   await $.turn.complete({ ...TURN, turnId: 't3', usage: usage() })
 
-  for (const surface of ['terminal', 'desktop'] as const) {
-    expect(await readTree($, surface)).toMatchObject({
-      module: 'hooks/tree.tsx',
-      props: { turns: 101 },
-    })
-  }
+  expect(await readTree($, 'terminal')).toMatchObject({
+    module: 'hooks/tree.tsx',
+    props: { turns: 101 },
+  })
+})
+
+test('on desktop the bonsai is a drawn picture of its stage', async ($, on) => {
+  engine(on, { 'bonsai:turns': 1999 })
+  await $.turn.complete({ ...TURN, turnId: 't1', usage: usage() })
+
+  const ui = await $.ui.mount({ ...BAND, surface: 'desktop' })
+  const box = await ui.find({ key: 'bonsai' })
+  await ui.unmount()
+  const svg = box?.children[0] as Drawn | undefined
+
+  expect(svg?.props).toMatchObject({
+    alt: 'bonsai, tree stage, 2000 turns',
+    width: 60,
+    height: 50,
+  })
+  expect(String(svg?.props.source)).toMatch(/^<svg /)
 })

@@ -1,4 +1,5 @@
 import { expect, test } from 'claude-code/testing'
+import { bonsaiSvg } from '../hooks/drawing'
 import { advance, stageFor, startClock, treeCells, treePixels } from '../hooks/bonsai'
 
 test('the tree grows a stage at 100, 500, 2,000 and 10,000 turns', () => {
@@ -75,4 +76,26 @@ test('a new turn sparkles for four frames, the first count does not', () => {
     sparkles.push(clock.isSparkling)
   }
   expect(sparkles).toEqual([false, true, true, true, true, false])
+})
+
+const PINK = '#f4b6c8'
+const count = (text: string, part: string) => text.split(part).length - 1
+
+test('only the tree in bloom has flowers and falling petals', () => {
+  expect(count(bonsaiSvg(3, 1), PINK)).toBe(0)
+  expect(count(bonsaiSvg(4, 1), `<circle`)).toBeGreaterThan(
+    count(bonsaiSvg(3, 1), `<circle`),
+  )
+  expect(count(bonsaiSvg(4, 1), `<ellipse cx`)).toBeGreaterThan(
+    count(bonsaiSvg(3, 1), `<ellipse cx`),
+  )
+  expect(count(bonsaiSvg(4, 1), PINK)).toBeGreaterThan(0)
+})
+
+test('each finished turn draws a fresh picture that sparkles once', () => {
+  const before = bonsaiSvg(3, 2000)
+  const after = bonsaiSvg(3, 2001)
+  expect(after).not.toBe(before)
+  expect(count(after, '#f2c14e')).toBeGreaterThan(0)
+  expect(after).toContain('repeatCount="1"')
 })
