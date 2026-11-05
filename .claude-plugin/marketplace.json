@@ -1,0 +1,8 @@
+{
+  "name": "my-mods",
+  "owner": { "name": "Earth Jan Marzan" },
+  "plugins": [
+    { "name": "token-band", "source": "./token-band" },
+    { "name": "task-board", "source": "./task-board" }
+  ]
+}
