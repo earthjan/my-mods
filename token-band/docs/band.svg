@@ -10,14 +10,12 @@
       <rect width="84" height="20" fill="#555"/><text x="44" y="14">this session</text>
       <rect x="84" width="23" height="20" fill="#97ca00"/><text x="95.5" y="14">2</text>
       <rect x="107" width="61" height="20" fill="#6c757d"/><text x="135.5" y="14">14.79M</text>
-      <rect x="107" width="1" height="20" fill="#fff" fill-opacity=".35"/>
     </g>
     <g transform="translate(176)">
       <g clip-path="url(#acct)">
         <rect width="93" height="20" fill="#555"/><text x="48.5" y="14">account-wide</text>
         <rect x="93" width="76" height="20" fill="#fe7d37"/><text x="131" y="14">4 (1d 18h)</text>
         <rect x="169" width="60" height="20" fill="#44cc11"/><text x="197" y="14">w-34%</text>
-        <rect x="169" width="1" height="20" fill="#fff" fill-opacity=".35"/>
       </g>
     </g>
     <text x="415" y="14" text-anchor="start" fill="#9a9893" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif">weekly % rising fast, check other sessions</text>

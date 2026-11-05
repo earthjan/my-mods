@@ -46,7 +46,7 @@ Then run `/reload-plugins`. In the desktop app the board opens by itself when a 
 ## Limits worth knowing
 
 - Running times update whenever the board redraws, which is every time a tool starts or ends, not every second.
-- An amber "waiting" card stays until that tool call finishes, since there is no event for the moment you approve.
+- An amber "waiting" card stays until that tool call finishes or, for a call you deny, until Claude's turn ends. Subagents' approval prompts are not shown.
 - The board shows only the session it is open in.
 - Claude Code's `TaskCreate` and `TaskUpdate` tools are not read yet.
 

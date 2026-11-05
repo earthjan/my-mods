@@ -50,6 +50,7 @@ const engine = (on: On) => {
   on('tool.check', (_, e) => ({
     decision: e.tool === 'Edit' ? 'ask' : 'allow',
   }))
+  on('turn.complete', () => ({ text: '' }))
   return mock.clock(on, { now: T0 })
 }
 
@@ -265,6 +266,31 @@ test('a call put to you for approval is flagged as waiting', async ($, on) => {
   ])
   release()
   await call
+  expect((await readBoard($)).doing).toEqual(['doing | Make it pass'])
+})
+
+test("a subagent's approval prompt adds no waiting card", async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+  await $.tool.check({
+    tool: 'Edit', input: { file_path: '/repo/a.ts' },
+    tool_use_id: 's1', agentId: 'sub-1', approver: 'person',
+  })
+
+  expect((await readBoard($)).doing).toEqual(['doing | Make it pass'])
+})
+
+test('a denied call stops waiting once the turn ends', async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+  await $.tool.check({
+    tool: 'Edit', input: { file_path: '/repo/a.ts' },
+    tool_use_id: 'd1', approver: 'person',
+  })
+  const end = { turnId: 't1', reason: 'answer', answer: 'done' }
+  type End = Parameters<$['turn']['complete']>[0]
+  await $.turn.complete(end as unknown as End)
+
   expect((await readBoard($)).doing).toEqual(['doing | Make it pass'])
 })
 

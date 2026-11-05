@@ -3,7 +3,9 @@ import type { EngineInterface, Register, ToolCallResult } from 'claude-code'
 
 import { isEmpty, lanes } from './lanes'
 import { finishCurrent, updatePlan } from './plan'
-import { endRun, labelOf, markWaiting, runOf, startRun } from './runs'
+import {
+  clearWaiting, endRun, labelOf, markWaiting, runOf, startRun,
+} from './runs'
 import { drawBoard, drawEmpty } from './view'
 import type { Board } from '../types'
 
@@ -78,12 +80,18 @@ export const register: Register = on => {
     const verdict = await next(e)
     const id = e.tool_use_id
     const isAsked = verdict.decision === 'ask' && e.approver === 'person'
-    if (!isAsked || id === undefined) return verdict
+    const isMine = id !== undefined && e.agentId === undefined
+    if (!isAsked || !isMine) return verdict
     const label = labelOf(e.tool, e.input)
     const startedAt = await $.clock.now()
     const waiting = { id, label, startedAt, isWaiting: true }
     await update($, board, b => markWaiting(b, waiting))
     return verdict
+  })
+
+  on('turn.complete', async ($, e, next) => {
+    if (e.agentId === undefined) await update($, board, clearWaiting)
+    return next(e)
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {

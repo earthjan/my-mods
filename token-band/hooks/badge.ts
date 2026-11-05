@@ -42,9 +42,6 @@ const segment = (at: Drawn, text: string, fill: string) =>
   `fill="${fill}"/>` +
   `<text x="${at.centre}" y="14">${escape(text)}</text>`
 
-const SEPARATOR =
-  `<rect width="1" height="${HEIGHT}" fill="#ffffff" fill-opacity="0.35"/>`
-
 const valuePlace = (x: number, text: string, isLast: boolean) => {
   const width = segmentWidth(text)
   const extra = isLast ? END_PAD : 0
@@ -55,9 +52,8 @@ const values = (segments: Segment[], start: number) => {
   let x = start
   const parts = segments.map((s, i) => {
     const at = valuePlace(x, s.value, i === segments.length - 1)
-    const line = i === 0 ? '' : `<g transform="translate(${x})">${SEPARATOR}</g>`
     x += at.width
-    return segment(at, s.value, s.color) + line
+    return segment(at, s.value, s.color)
   })
   return { svg: parts.join(''), end: x }
 }

@@ -66,3 +66,8 @@ export const endRun = (board: Board, end: RunEnd): Board => {
   const ended = { ...board, runs, agentsDone }
   return end.isError ? countError(ended) : ended
 }
+
+export const clearWaiting = (board: Board): Board => ({
+  ...board,
+  runs: board.runs.filter(r => !r.isWaiting),
+})

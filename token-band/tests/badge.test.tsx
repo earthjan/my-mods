@@ -29,7 +29,7 @@ test('text centres on the flat part, clear of the rounded ends', () => {
   expect(textCentres(svg)).toEqual([44, 112])
 })
 
-test('the divider between values is drawn on top of them', () => {
+test('values meet edge to edge, with no divider line', () => {
   const { svg } = badgeSvg({
     key: 'k',
     label: 'a',
@@ -39,8 +39,5 @@ test('the divider between values is drawn on top of them', () => {
     ],
   })
 
-  const second = svg.indexOf('<rect x="50"')
-  const divider = svg.indexOf('fill-opacity="0.35"')
-  expect(second).toBeGreaterThan(-1)
-  expect(divider).toBeGreaterThan(second)
+  expect(svg).not.toContain('fill-opacity')
 })
