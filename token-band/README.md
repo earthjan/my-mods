@@ -1,14 +1,16 @@
 # token-band
 
-A row of two pills above the Claude Code prompt that tells you, at a glance, how hard you are using your weekly limit: this session on the left, your whole account on the right, and the main reason when usage is climbing.
+A row of three pills above the Claude Code prompt that tells you, at a glance, how hard you are using your weekly limit: this session, your whole account, how much of the week is used, and the main reason when usage is climbing.
 
-![The token band: a "this session" pill, an "account-wide" pill, and a note naming the cause](docs/band.svg)
+![The token band: "this session", "account-wide" and "weekly" pills, and a note naming the cause](docs/band.svg)
 
 ## Reading the band
 
 **The left pill is this session.** Its number is a level from 1 (relaxed) to 5 (you will hit the limit within a day) for this session's own share of your usage, and the grey segment is how many tokens the session has used, subagents included.
 
-**The right pill is your whole account.** Its number is the same 1 to 5 scale for every session together, followed by the time left before you hit the weekly limit (`4 · 1d 18h`) when the current pace would get there. The last segment, `w-34%`, is how much of this week's limit is already used, coloured by how close that is to full.
+**The middle pill is your whole account.** Its number is the same 1 to 5 scale for every session together, followed by the time left before you hit the weekly limit (`4 · 1d 18h`) when the current pace would get there.
+
+**The weekly pill** is how much of this week's limit is already used, coloured by how close that is to full. It has its own pill because it already covers every session on the account.
 
 **The grey note names the main cause**, when there is one: a cache miss that re-wrote a big prompt, a conversation so large it is re-read every turn, several subagents in one turn, the Fable model, very long output, or the weekly % rising fast because of other sessions.
 

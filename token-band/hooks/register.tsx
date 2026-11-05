@@ -126,15 +126,20 @@ const levelSegment = (lvl: number, left?: string): Segment => ({
 })
 
 const weeklySegment = (week: Weekly): Segment => ({
-  value: `w-${week.last.percent}%`,
+  value: `${week.last.percent}%`,
   color: LEVEL_COLORS[levelFromUsed(week.last.percent) - 1] ?? MISSING_COLOR,
 })
 
 const accountSegments = (week: Weekly | null, now: number): Segment[] => {
   if (week === null) return [missing('no reading')]
   const left = timeLeft(project(week, now))
-  return [levelSegment(level(week, now), left), weeklySegment(week)]
+  return [levelSegment(level(week, now), left)]
 }
+
+const weeklyBadges = (week: Weekly | null): Badge[] =>
+  week === null
+    ? []
+    : [{ key: 'weekly', label: 'weekly', segments: [weeklySegment(week)] }]
 
 const mineSegment = async (
   $: EngineInterface,
@@ -174,6 +179,7 @@ const describe = async ($: EngineInterface) => {
       label: 'account-wide',
       segments: accountSegments(week, now),
     },
+    ...weeklyBadges(week),
   ]
   return { badges, why }
 }

@@ -84,7 +84,7 @@ type Band = {
 
 type Pill = { label: string; values: string[]; colors: unknown[] }
 
-const PILLS = ['mine', 'account'] as const
+const PILLS = ['mine', 'account', 'weekly'] as const
 
 const unescape = (s: string): string =>
   s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
@@ -134,17 +134,20 @@ const readSurface = async (
 ): Promise<Band> => {
   const ui = await $.ui.mount({ ...BAND, surface })
   const cause = (await ui.find({ key: 'note' }))?.text
-  const [mine, account] = await Promise.all(
+  const [mine, account, weekly] = await Promise.all(
     PILLS.map(key => readPill(ui, key, surface)),
   )
   await ui.unmount()
   const show = (p: Pill) => [p.label, ...p.values].join(' ')
+  const hasWeekly = weekly?.label !== ''
   return {
-    badges: [mine, account].map(p => show(p as Pill)).join(' · '),
+    badges: [mine, account, weekly]
+      .filter(p => p?.label !== '')
+      .map(p => show(p as Pill)).join(' · '),
     cause,
     mineColor: mine?.colors[0],
-    levelColor: account?.colors.length === 2 ? account.colors[0] : undefined,
-    weeklyColor: account?.colors.at(-1),
+    levelColor: hasWeekly ? account?.colors[0] : undefined,
+    weeklyColor: hasWeekly ? weekly?.colors[0] : undefined,
   }
 }
 
@@ -172,7 +175,6 @@ test('session tokens sum every turn, subagents included', async ($, on) => {
   expect(await readBand($)).toEqual({
     badges: 'this session no estimate 35.5k · account-wide no reading',
     mineColor: '#9f9f9f',
-    weeklyColor: '#9f9f9f',
   })
 })
 
@@ -183,7 +185,7 @@ test('a pace that runs out before reset is level 4', async ($, on) => {
   await $.session.measure(measure(44, T0 + 74 * HOUR))
 
   expect(await readBand($)).toEqual({
-    badges: 'this session no estimate 0 · account-wide 4 · 1d 4h w-44%',
+    badges: 'this session no estimate 0 · account-wide 4 · 1d 4h · weekly 44%',
     mineColor: '#9f9f9f',
     cause: 'weekly % rising fast, check other sessions',
     levelColor: '#fe7d37',
@@ -198,7 +200,7 @@ test('a pace that runs out within a day is level 5', async ($, on) => {
   await $.session.measure(measure(70, T0 + 74 * HOUR))
 
   const band = await readBand($)
-  expect(band.badges).toMatch(/account-wide 5 · 6h w-/)
+  expect(band.badges).toMatch(/account-wide 5 · 6h\s·\sweekly /)
   expect(band.levelColor).toBe('#e05d44')
 })
 
@@ -208,7 +210,7 @@ test('under an hour left reads as less than an hour', async ($, on) => {
   await clock.advance(2 * HOUR)
   await $.session.measure(measure(99, T0 + 74 * HOUR))
 
-  expect((await readBand($)).badges).toMatch(/account-wide 5 · <1h w-/)
+  expect((await readBand($)).badges).toMatch(/account-wide 5 · <1h\s·\sweekly /)
 })
 
 test('a slow pace is level 1 with nothing to blame', async ($, on) => {
@@ -218,7 +220,7 @@ test('a slow pace is level 1 with nothing to blame', async ($, on) => {
   await $.session.measure(measure(41, T0 + 26 * HOUR))
 
   expect(await readBand($)).toEqual({
-    badges: 'this session no estimate 0 · account-wide 1 w-41%',
+    badges: 'this session no estimate 0 · account-wide 1 · weekly 41%',
     mineColor: '#9f9f9f',
     levelColor: '#44cc11',
     weeklyColor: '#44cc11',
@@ -232,7 +234,7 @@ test('a projection near the limit is level 3', async ($, on) => {
   await $.session.measure(measure(71, T0 + 26 * HOUR))
 
   const band = await readBand($)
-  expect(band.badges).toMatch(/account-wide 3 w-/)
+  expect(band.badges).toMatch(/account-wide 3\s·\sweekly /)
   expect(band.levelColor).toBe('#dfb317')
 })
 
@@ -240,7 +242,7 @@ test('before the pace is known, the weekly % sets the level', async ($, on) => {
   engine(on)
   await $.session.measure(measure(96, T0 + 26 * HOUR))
 
-  expect((await readBand($)).badges).toMatch(/account-wide 5 w-/)
+  expect((await readBand($)).badges).toMatch(/account-wide 5\s·\sweekly /)
 })
 
 test('the weekly badge is coloured by how much of the week is used', async ($, on) => {
@@ -263,7 +265,7 @@ test('a big conversation is named as the cause', async ($, on) => {
   await $.session.measure(measure(40, T0 + 26 * HOUR, 160000))
 
   expect(await readBand($)).toEqual({
-    badges: 'this session no estimate 0 · account-wide 1 w-40%',
+    badges: 'this session no estimate 0 · account-wide 1 · weekly 40%',
     mineColor: '#9f9f9f',
     cause: 'big conversation, 160k re-read each turn',
     levelColor: '#44cc11',
@@ -271,7 +273,7 @@ test('a big conversation is named as the cause', async ($, on) => {
   })
 })
 
-test('the two pills and the note share one row that wraps', async ($, on) => {
+test('the pills and the note share one row that wraps', async ($, on) => {
   engine(on)
   await $.session.measure(measure(40, T0 + 26 * HOUR, 160000))
 
@@ -322,7 +324,7 @@ test('a busier session elsewhere takes its share of the pace', async ($, on) => 
 
   const band = await readBand($)
   expect(band.badges).toBe(
-    'this session 2 0 · account-wide 4 · 1d 4h w-44%',
+    'this session 2 0 · account-wide 4 · 1d 4h · weekly 44%',
   )
   expect(band.mineColor).toBe('#97ca00')
 })
@@ -392,7 +394,6 @@ test('the next turn clears a cause that has passed', async ($, on) => {
   expect(await readBand($)).toEqual({
     badges: 'this session no estimate 117.5k · account-wide no reading',
     mineColor: '#9f9f9f',
-    weeklyColor: '#9f9f9f',
   })
 })
 
@@ -428,7 +429,7 @@ test('the weekly reading is taken when the session starts', async ($, on) => {
   await $.session.start({ cwd: '/', surface: 'desktop', isInteractive: true })
 
   expect((await readBand($)).badges).toBe(
-    'this session no estimate 0 · account-wide 1 w-40%',
+    'this session no estimate 0 · account-wide 1 · weekly 40%',
   )
 })
 
