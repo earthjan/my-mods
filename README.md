@@ -9,11 +9,19 @@ Personal Claude Code mods, published as a plugin marketplace so every machine in
 
 ## Install on a machine
 
-The repo is private, so the machine needs git access to it. With the personal SSH key under the `github-personal` host alias:
+The repo is private, so your GitHub account needs access to it. Add the marketplace over HTTPS, using the GitHub login your git already has (for example from `gh auth login`):
 
 ```bash
-claude plugin marketplace add git@github-personal:earthjan/my-mods.git
+claude plugin marketplace add earthjan/my-mods
 ```
+
+On a machine where git signs in to GitHub over SSH instead, use the SSH address:
+
+```bash
+claude plugin marketplace add git@github.com:earthjan/my-mods.git
+```
+
+Then install the mods:
 
 ```bash
 claude plugin install token-band@my-mods && claude plugin install task-board@my-mods
