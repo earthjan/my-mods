@@ -295,6 +295,22 @@ test('a denied call stops waiting once the turn ends', async ($, on) => {
   expect((await readBoard($)).doing).toEqual(['doing | Make it pass'])
 })
 
+test('approvals for the same tool share one card with a count', async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+  for (const id of ['e1', 'e2', 'e3']) {
+    await $.tool.check({
+      tool: 'Edit', input: { file_path: '/repo/a.ts' },
+      tool_use_id: id, approver: 'person',
+    })
+  }
+
+  expect((await readBoard($)).doing).toEqual([
+    'doing | Make it pass',
+    'waiting | Edit a.ts | 3 waiting for your approval',
+  ])
+})
+
 test('a step that hit a failing tool is marked failed when done', async ($, on) => {
   engine(on)
   await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))

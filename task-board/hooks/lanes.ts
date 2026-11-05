@@ -41,12 +41,20 @@ const agentCard = (r: Run, now: number): Card => {
   return { key: r.id, title: r.agent?.title ?? r.label, tone: 'agent', status }
 }
 
-const waitingCard = (r: Run): Card => ({
-  key: `wait-${r.id}`,
-  title: r.label,
+const waitingCard = ([label, count]: [string, number]): Card => ({
+  key: `wait-${label}`,
+  title: label,
   tone: 'waiting',
-  status: 'waiting for your approval',
+  status: `${count > 1 ? `${count} ` : ''}waiting for your approval`,
 })
+
+const waitingCards = (board: Board): Card[] => {
+  const counts = new Map<string, number>()
+  for (const r of board.runs.filter(r => r.isWaiting)) {
+    counts.set(r.label, (counts.get(r.label) ?? 0) + 1)
+  }
+  return [...counts].map(waitingCard)
+}
 
 const stepDone = (s: Step): Card => {
   if (s.errors === 0) return { key: s.id, title: s.title, tone: 'done' }
@@ -84,7 +92,7 @@ export const lanes = (board: Board, now: number, keepDone: number): Lanes => {
     doing: [
       ...doingCards(board, now),
       ...board.runs.filter(r => r.agent).map(r => agentCard(r, now)),
-      ...board.runs.filter(r => r.isWaiting).map(waitingCard),
+      ...waitingCards(board),
     ],
     queued: where(board, 'pending')
       .map(s => ({ key: s.id, title: s.title, tone: 'queued' })),
