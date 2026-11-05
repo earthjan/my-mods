@@ -27,16 +27,19 @@ const LANES: Lane[] = [
 ]
 
 const panel = (isFine: boolean) =>
-  isFine ? { backgroundColor: PANEL_FILL } : {}
+  isFine
+    ? { backgroundColor: PANEL_FILL }
+    : { borderStyle: 'round', borderDimColor: true }
 
 const drawCard = (table: Table, lane: string, c: Card, isFine: boolean) => {
   const { Box, Text } = table
   return (
     <Box key={`card:${lane}:${c.key}`} flexDirection="row"
-      borderStyle="round" borderDimColor overflow="hidden" {...panel(isFine)}>
+      overflow="hidden" {...panel(isFine)}>
       <Box width={isFine ? FINE_BAR : 1}
         backgroundColor={TONE_COLORS[c.tone]} />
-      <Box flexDirection="column" flexGrow={1} flexShrink={1} paddingX={1}>
+      <Box flexDirection="column" flexGrow={1} flexShrink={1} paddingX={1}
+        paddingY={isFine ? 0.5 : 0}>
         <Text dimColor={lane === 'done'}>{c.title}</Text>
         {c.status === undefined ? null : (
           <Text color={TONE_COLORS[c.tone]}>{c.status}</Text>

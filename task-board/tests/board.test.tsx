@@ -131,7 +131,7 @@ test('each card is a rounded panel with a colour bar', async ($, on) => {
   engine(on)
   await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
 
-  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   const boxes = await ui.findAll({ type: 'Box' })
   await ui.unmount()
   const card = boxes.find(b => b.key === 'card:doing:2')
@@ -150,13 +150,14 @@ const doingCard = async ($: $, surface: 'terminal' | 'desktop') => {
   return { card: card?.props ?? {}, bar: bar?.props ?? {} }
 }
 
-test('on desktop the bar is a thin line on a faint panel', async ($, on) => {
+test('on desktop the bar is a thin line on the edge of a faint panel', async ($, on) => {
   engine(on)
   await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
 
   const { card, bar } = await doingCard($, 'desktop')
   expect(bar.width).toBe(0.3)
   expect(card.backgroundColor).toBe('#8080801f')
+  expect(card.borderStyle).toBeUndefined()
 })
 
 test('the terminal keeps a one-cell bar and no fill', async ($, on) => {
