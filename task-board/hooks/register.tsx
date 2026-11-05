@@ -89,10 +89,12 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const table = $.ui.resolve(e)
     const isWide = e.props.bodyColumns >= WIDE_COLUMNS
+    const isFine = e.surface !== 'terminal'
     const now = await $.clock.now()
     const current = await read($, board)
     if (isEmpty(current)) return drawEmpty(table)
     const keepDone = isWide ? 3 : 1
-    return drawBoard(table, lanes(current, now, keepDone), isWide)
+    const look = { isWide, isFine }
+    return drawBoard(table, lanes(current, now, keepDone), look)
   })
 }

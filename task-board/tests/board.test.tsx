@@ -140,6 +140,33 @@ test('each card is a rounded panel with a colour bar', async ($, on) => {
   expect(bar?.children ?? []).toEqual([])
 })
 
+const doingCard = async ($: $, surface: 'terminal' | 'desktop') => {
+  const ui = await $.ui.mount({ ...PANE, surface })
+  const boxes = await ui.findAll({ type: 'Box' })
+  await ui.unmount()
+  const card = boxes.find(b => b.key === 'card:doing:2')
+  const [bar] = (card?.children ?? []) as Drawn[]
+  return { card: card?.props ?? {}, bar: bar?.props ?? {} }
+}
+
+test('on desktop the bar is a thin line on a faint panel', async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+
+  const { card, bar } = await doingCard($, 'desktop')
+  expect(bar.width).toBe(0.3)
+  expect(card.backgroundColor).toBe('#8080801f')
+})
+
+test('the terminal keeps a one-cell bar and no fill', async ($, on) => {
+  engine(on)
+  await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
+
+  const { card, bar } = await doingCard($, 'terminal')
+  expect(bar.width).toBe(1)
+  expect(card.backgroundColor).toBeUndefined()
+})
+
 test('lane headers name the lane in a heavier weight', async ($, on) => {
   engine(on)
   await $.tool.call(plan({ items: STEPS, scope: 'first_task' }))
