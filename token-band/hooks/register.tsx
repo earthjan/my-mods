@@ -135,6 +135,18 @@ const recordTurn = async (
   await update($, pending, () => EMPTY)
 }
 
+const TURNS_KEY = 'bonsai:turns'
+
+const countTurn = async ($: EngineInterface) => {
+  const sofar = await $.store.get(TURNS_KEY)
+  await $.store.set(TURNS_KEY, (typeof sofar === 'number' ? sofar : 0) + 1)
+}
+
+const readTurns = async ($: EngineInterface): Promise<number> => {
+  const turns = await $.store.get(TURNS_KEY)
+  return typeof turns === 'number' ? turns : 0
+}
+
 const missing = (value: string): Segment => ({
   value,
   color: MISSING_COLOR,
@@ -223,6 +235,7 @@ export const register: Register = on => {
     const result = await next(e)
     const usage = e.usage ?? result.usage
     if (usage) await recordTurn($, e, usage)
+    if (e.agentId === undefined) await countTurn($)
     return result
   })
 
@@ -244,6 +257,10 @@ export const register: Register = on => {
     const { badges, why } = await describe($)
     const table = $.ui.resolve(e)
     const isSvg = e.surface !== 'terminal' && 'Svg' in table
-    return drawBand({ table, isSvg, badges, why })
+    const turns = await readTurns($)
+    const tree = 'Client' in table && turns > 0
+      ? <table.Client key="bonsai" module="./tree.tsx" props={{ turns }} />
+      : undefined
+    return drawBand({ table, isSvg, badges, why, tree })
   })
 }

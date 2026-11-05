@@ -14,6 +14,8 @@ A row of two pills above the Claude Code prompt that tells you, at a glance, how
 
 ![What each level means](docs/levels.svg)
 
+**The little bonsai after the pills grows with you.** It counts every finished turn on this machine, across all sessions, and grows from a sprout to a sapling at 100 turns, a tree at 500 and 2,000, and comes into bloom at 10,000. Its canopy sways, petals fall once it blooms, and it sparkles for a moment whenever a turn finishes. It makes the band two rows tall, and surfaces that cannot run an animated part (VS Code, mobile) leave it out.
+
 ## How the session level is worked out
 
 Claude Code reports usage for the whole account, not per session, so the left pill is an estimate. Each session records how fast it is spending, compares that with every other session active in the last 30 minutes, and takes its share of the account's pace.
@@ -37,6 +39,7 @@ Then run `/reload-plugins` in an open session. The band appears above the prompt
 - The session level is an estimate built from spend rates, so two busy sessions started at the same moment can briefly disagree.
 - The account pace needs 10 minutes of readings before it can project anything; until then the level falls back to how much of the week is used.
 - Session readings older than a day are forgotten.
+- The bonsai's turn count lives on this machine only; a new machine starts from a sprout.
 
 ## Development
 

@@ -469,3 +469,32 @@ test('the band stays empty before anything is measured', async ($, on) => {
   expect((await ui.find({ type: 'Text' }))?.text).toBe('engine')
   await ui.unmount()
 })
+
+const readTree = async (
+  $: Parameters<TestBody>[0],
+  surface: 'terminal' | 'desktop',
+) => {
+  const ui = await $.ui.mount({ ...BAND, surface })
+  const tree = await ui.find({ key: 'bonsai' })
+  await ui.unmount()
+  return tree?.props
+}
+
+test('the bonsai counts finished turns from every session', async ($, on) => {
+  engine(on, { 'bonsai:turns': 99 })
+  await $.turn.complete({ ...TURN, turnId: 't1', usage: usage() })
+  await $.turn.complete({
+    ...TURN,
+    turnId: 't2',
+    agentId: 'sub-1',
+    usage: usage(),
+  })
+  await $.turn.complete({ ...TURN, turnId: 't3', usage: usage() })
+
+  for (const surface of ['terminal', 'desktop'] as const) {
+    expect(await readTree($, surface)).toMatchObject({
+      module: 'hooks/tree.tsx',
+      props: { turns: 101 },
+    })
+  }
+})

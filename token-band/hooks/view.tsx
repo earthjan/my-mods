@@ -10,6 +10,7 @@ export type BandInput = {
   isSvg: boolean
   badges: Badge[]
   why?: string
+  tree?: ReturnType<Table['Box']>
 }
 
 const terminalPill = ({ Text }: Table, b: Badge) => [
@@ -56,6 +57,7 @@ export const drawBand = (input: BandInput) => {
     <Box key="band" flexDirection="row" flexWrap="wrap"
       alignItems="center" columnGap={1} rowGap={input.isSvg ? 1 : 0}>
       {input.badges.map(b => pill(input, b))}
+      {input.tree}
       {note}
     </Box>
   )
